@@ -1,17 +1,12 @@
-import { Sequelize, Dialect } from 'sequelize';
-import config from './config/config.json';
-type ConfigKeys = 'development'; 
-const env = (process.env.NODE_ENV || 'development') as ConfigKeys;
-const dbConfig = config[env];
-const sequelize = new Sequelize(
-  dbConfig.database,
-  dbConfig.username,
-  dbConfig.password,
-  {
-    host: dbConfig.host,
-    dialect: dbConfig.dialect as Dialect,
-    port: dbConfig.port,
-    logging: false,
-  }
-);
-export default sequelize;
+import oracledb from 'oracledb';
+
+async function getConnection() {
+  return await oracledb.getConnection({
+    user: "local",         // usuário que você criou no Oracle
+    password: "123",     // senha do usuário
+    connectString: "localhost:1521/XEPDB1" // string de conexão do Oracle
+  });
+}
+
+export default getConnection;
+

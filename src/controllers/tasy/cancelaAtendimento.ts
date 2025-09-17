@@ -57,7 +57,7 @@ class CancelaAtendimentoController {
             const statusAtendimento = await connectionTasy.execute(
                 selectStatusAtendimento,
                 { atendimentoIdNumber },
-            )
+            ) // feito
 
             if (statusAtendimento.rows && statusAtendimento.rows.length > 0) {
                 const row = statusAtendimento.rows[0] as [any, any];
@@ -76,7 +76,7 @@ class CancelaAtendimentoController {
             const contaPaciente = await connectionTasy.execute(
                 selectContaPaciente,
                 { atendimentoIdNumber },
-            );
+            ); // feito
 
             if (contaPaciente.rows && contaPaciente.rows.length === 0) {
                 await connectionTasy.close();
@@ -92,38 +92,39 @@ class CancelaAtendimentoController {
                 { atendimentoIdNumber },
                 { outFormat: OracleDB.OUT_FORMAT_OBJECT }
 
-            );
+            ); // feito
 
             // console.log('nrPrescricao:', resultSelectPrescricao.rows[0]);
 
-
-            // if (!resultSelectPrescricao.rows.length ) {
-            //     await connectionTasy.close();
-            //     return {
-            //         statusCode: 404,
-            //         body: { error: "Atendimento não tem prescrição médica" },
-            //     };
-                
-            // }
-
-
-            // if (!prescricao.rows){
-            //     await connectionTasy.close();
-            //     return {
-            //         statusCode: 404,
-            //         body: { error: "Atendimento não tem prescrição médica, logo o cancelamento deve ser manual" },
-            //     };
-            // }
-            
-
             // Pegar o nuerode sequencia interna
             const row = resultSelectPrescricao.rows[0] as { NR_PRESCRICAO: number };
-            var nrPrescricao = row.NR_PRESCRICAO;
+            var nrPrescricao = row?.NR_PRESCRICAO;
+
+            if (!resultSelectPrescricao.rows.length ) {
+                await connectionTasy.close();
+                return {
+                    statusCode: 404,
+                    body: { error: "Atendimento não tem prescrição médica" },
+                };
+                
+            }
+
+
+            if (!nrPrescricao || nrPrescricao <= 0) {
+                await connectionTasy.close();
+                return {
+                    statusCode: 404,
+                    body: { error: "Atendimento não tem prescrição médica, logo o cancelamento deve ser manual" },
+                };
+            }
+            
+
+            
 
             const nrSequenciaInterna = await connectionTasy.execute(
                 selectSequenciaInterna,
                 { nrPrescricao },
-            ); 
+            ); // feito
             
             // console.log('nrSequenciaInterna:', nrSequenciaInterna.rows[0]);
 
@@ -148,12 +149,37 @@ class CancelaAtendimentoController {
             //         body: { error: "Atendimento tem exame no PACS" },
             //     };
             // }
+            
+            if (!nomeUsuario) {
+                await connectionTasy.close();
+                return {
+                    statusCode: 400,
+                    body: { error: "É necessário informar o nome do usuário que está realizando o cancelamento" },
+                };
+            }
+            if (nomeUsuario.length < 3 || nomeUsuario.length > 30) {
+                await connectionTasy.close();
+                return {
+                    statusCode: 400,
+                    body: { error: "Nome do usuário inválido" },
+                };
+            }
 
             // Busca codigo do usuario 
             const rowCodUsuario = await connectionTasy.execute(
                 selectCodigoUsuario,
-                { nomeUsuario },
+                { nomeUsuario }, // feito
             );
+
+            if (rowCodUsuario.rows && rowCodUsuario.rows.length === 0) {
+                await connectionTasy.close();
+                return {
+                    statusCode: 404,
+                    body: { error: "Usuário não encontrado" },
+                };
+            }
+
+            //
             const codigoUsuario = rowCodUsuario.rows[0] as [number];
             console.log('codigoUsuario:', codigoUsuario);
             console.log('codigoUsuario:', codigoUsuario[0]);

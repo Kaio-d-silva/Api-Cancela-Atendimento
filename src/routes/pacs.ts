@@ -1,6 +1,6 @@
 import adaptRoute from "../adapters/express-route-adapter";
 import { Router } from "express";
-import ConsultarPacsController from "../controllers/pacs/consultaPacs";
+import ConsultarPacsController from "../controllers/pacs/consultaPacs-Não-Implementado";
 
 export default (router: Router): void => {
   /**
@@ -33,22 +33,22 @@ export default (router: Router): void => {
    * @swagger
    * tags:
    *   name: PACS
-   *   description: Consulta NA no banco do PACS para verificar se o mesmo existe
+   *   description: Ainda não implementado
    */
 
   /**
    * @swagger
-   * /api/consulta-na/{na}:
+   * /api/pacs/consulta-na/{accessionNumber}:
    *   get:
-   *     summary: Consulta NA no banco do PACS para verificar se o mesmo existe
+   *     summary: Ainda não implementado
    *     tags: [PACS]
    *     parameters:
-   *      - in: path
-   *        name: na
-   *        schema:
-   *          type: number
-   *        required: true
-   *        description: Numero de acesso do PACS (NA)
+   *       - in: path
+   *         name: accessionNumber
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: Numero de acesso do PACS (NA)
    *     responses:
    *       201:
    *         description: O NA foi encontrado
@@ -57,5 +57,5 @@ export default (router: Router): void => {
    *       500:
    *         description: Erro interno do servidor
    */
-  router.get("/consulta-na/{:na}", adaptRoute(new ConsultarPacsController()));
+  router.get("/pacs/consulta-na/:accessionNumber", adaptRoute(new ConsultarPacsController()));
 };

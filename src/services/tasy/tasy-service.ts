@@ -48,7 +48,12 @@ export class TasyService {
         console.log('contaPaciente Rows:', contaPaciente.rows);
         console.log('contaPaciente Rows:', contaPaciente.rows[0]);
 
-        return contaPaciente.rows[0];
+        const data = {
+            nrAtendimento: contaPaciente.rows ? (contaPaciente.rows[0] as any).NR_ATENDIMENTO : null,
+            statusConta: contaPaciente.rows ? (contaPaciente.rows[0] as any).IE_STATUS_ACERTO : null,
+        }
+
+        return data;
     }
 
     async numeroPrescricao(idAtendimento: number) {

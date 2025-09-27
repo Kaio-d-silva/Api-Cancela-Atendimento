@@ -115,15 +115,26 @@ class CancelaAtendimentoController {
 
 
 
-            const contaPaciente = await tasyService.contaPaciente(idAtendimento);
+            const statusContaPaciente = await tasyService.contaPaciente(idAtendimento);
 
 
-            if (contaPaciente === false) {
+            if (statusContaPaciente === false) {
                 tasyService.closeConnection();
                 return {
                     statusCode: 404,
                     body: { error: "Atendimento não tem conta paciente, logo o cancelamento deve ser manual" },
                 };
+            }
+            
+            if(statusContaPaciente){
+                const {statusConta} = statusContaPaciente
+
+                if(statusConta == 2){
+                    return{
+                        statusCode:400,
+                        body: { error: "Conta paciente com status de definitivo"}
+                    }
+                }
             }
 
 

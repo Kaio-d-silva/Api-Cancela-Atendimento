@@ -1,0 +1,1 @@
+export const selectAcessionNumber = 'SELECT ACCESSION_NUMBER FROM DIDB_STUDIES WHERE ACCESSION_NUMBER = :accessionNumber';

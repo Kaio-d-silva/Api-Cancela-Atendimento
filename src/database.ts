@@ -1,12 +1,34 @@
 import oracledb from 'oracledb';
+import { ENV } from './config/env';
 
-async function getConnection() {
+oracledb.initOracleClient({ libDir: '/home/oracle/instantclient_19_28' });
+
+
+
+export async function getConnectionTasyHom() {
   return await oracledb.getConnection({
-    user: "local",         // usuário que você criou no Oracle
-    password: "123",     // senha do usuário
-    connectString: "localhost:1521/XEPDB1" // string de conexão do Oracle
+    user: ENV.USER_DB_TASY_HOMO,        
+    password: ENV.PASSWORD_DB_TASY_HOMO,
+    connectString: ENV.CONNECT_STRING_TASY_HOMO 
+
   });
 }
 
-export default getConnection;
+export async function getConnectionTasyProd() {
+  return await oracledb.getConnection({
+    user: ENV.USER_DB_TASY_PROD,       
+    password: ENV.PASSWORD_DB_TASY_PROD,   
+    connectString: ENV.CONNECT_STRING_TASY_PROD
+
+  });
+}
+
+export async function getConnectionPacs() {
+  return await oracledb.getConnection({
+    user: ENV.USER_DB_PACS,         
+    password: ENV.PASSWORD_DB_PACS,     
+    connectString: ENV.CONNECT_STRING_PACS
+  });
+}
+
 

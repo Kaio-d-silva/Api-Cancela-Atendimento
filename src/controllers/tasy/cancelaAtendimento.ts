@@ -128,7 +128,8 @@ class CancelaAtendimentoController {
             
             if(statusContaPaciente){
                 const {statusConta} = statusContaPaciente
-
+                
+                // Status 2 significa DEFINITIVO, status 1 PROVISORIO
                 if(statusConta == 2){
                     return{
                         statusCode:400,

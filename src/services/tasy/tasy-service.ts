@@ -44,16 +44,10 @@ export class TasyService {
         if (!contaPaciente.rows || contaPaciente.rows.length === 0) {
             return false;
         }
+        
+        const statusConta = contaPaciente.rows as [{IE_STATUS_ACERTO: number}]
 
-        console.log('contaPaciente Rows:', contaPaciente.rows);
-        console.log('contaPaciente Rows:', contaPaciente.rows[0]);
-
-        const data = {
-            nrAtendimento: contaPaciente.rows ? (contaPaciente.rows[0] as any).NR_ATENDIMENTO : null,
-            statusConta: contaPaciente.rows ? (contaPaciente.rows[0] as any).IE_STATUS_ACERTO : null,
-        }
-
-        return data;
+        return statusConta;
     }
 
     async numeroPrescricao(idAtendimento: number) {
@@ -63,19 +57,29 @@ export class TasyService {
             { outFormat: OracleDB.OUT_FORMAT_OBJECT }
 
         );
-        const row = resultSelect.rows[0] as { NR_PRESCRICAO: number } | undefined;
 
-        return row?.NR_PRESCRICAO;
+        const prescricoes = resultSelect.rows as [{ NR_PRESCRICAO: number}] | undefined
+
+        return prescricoes
     }
 
-    async nrSequenciaInterna(nrPrescricao: number) {
-        const nrSequenciaInterna = await this.connectionTasy.execute(
-            selectSequenciaInterna,
-            { nrPrescricao },
-        );
+    async nrSequenciaInterna(nrPrescricoes: [{NR_PRESCRICAO: number}]): Promise<number[]> {
+        const prescricoes = nrPrescricoes.map( presc => presc.NR_PRESCRICAO)
+        
+        let nrsSequenciainterna: number[]=  [] 
 
-        const rowSeq = nrSequenciaInterna.rows[0] as [string] | undefined;
-        return rowSeq ? rowSeq[0].toString() : undefined;
+        for (const presc of prescricoes){
+            const result = await this.connectionTasy.execute(
+                selectSequenciaInterna,
+                { nrPrescricao:presc },
+            );
+
+            for (const seqInt of result.rows as number[]){
+                nrsSequenciainterna.push(seqInt)
+
+            }
+        }
+        return nrsSequenciainterna
     }
 
     async codigoUsuario(nomeUsuario: string) {

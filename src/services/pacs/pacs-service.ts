@@ -17,16 +17,25 @@ export class PacsService {
         }
     }
 
-    async consultaSequenciaInterna(sequenciaInterna: string) {
-        const resultSelect = await this.connectionPacs.execute(
-            selectAcessionNumber,
-            { accessionNumber: sequenciaInterna },
-            { outFormat: OracleDB.OUT_FORMAT_OBJECT }
-        );
+    async consultaSequenciaInterna(sequenciasInternas: number[]) {
 
-        const rowSeq = resultSelect.rows[0] ? (resultSelect.rows[0] as any).ACCESSION_NUMBER : false;
+        let seqNoPacs = []
+        for (const seq of sequenciasInternas ){
+            const seqFormat = seq.toString()
 
-        return rowSeq
+            const resultSelect = await this.connectionPacs.execute(
+                selectAcessionNumber,
+                { accessionNumber: seqFormat },
+            );
+            if (resultSelect.rows === null || resultSelect.rows.length === 0 ){
+                continue
+            }
+            const row = resultSelect.rows[0] as any
+            const data = row[0]
+            seqNoPacs.push(data)
+        }
+
+        return seqNoPacs
         
     }
 }

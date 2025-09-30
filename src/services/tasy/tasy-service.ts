@@ -1,5 +1,5 @@
 import OracleDB from "oracledb";
-import { cancelaAtendimento, selectCodigoPessoaFisica, selectCodigoUsuario, selectContaPaciente, selectDadosPaciente, selectNrPrescricao, selectSequenciaInterna, selectStatusAtendimento } from "../../sql/tasy/query";
+import { cancelaAtendimento, selectCodigoPessoaFisica, selectCodigoUsuario, selectContaPaciente, selectDadosPaciente, selectMaterialConta, selectNrPrescricao, selectSequenciaInterna, selectStatusAtendimento } from "../../sql/tasy/query";
 
 export class TasyService {
     connectionTasy: import("oracledb").Connection;
@@ -19,7 +19,7 @@ export class TasyService {
 
         if (!statusAtendimento.rows || statusAtendimento.rows.length === 0) {
             return false;
-        }     
+        }
 
         const data = {
             dataCancelamento: statusAtendimento.rows ? (statusAtendimento.rows[0] as any).DT_CANCELAMENTO : null,
@@ -33,19 +33,19 @@ export class TasyService {
         return false;
     }
 
-    async contaPaciente(idAtendimento: number) {
+    async verificaContaPaciente(idAtendimento: number) {
         const contaPaciente = await this.connectionTasy.execute(
             selectContaPaciente,
             { idAtendimento },
             { outFormat: OracleDB.OUT_FORMAT_OBJECT }
         );
-        
+
 
         if (!contaPaciente.rows || contaPaciente.rows.length === 0) {
             return false;
         }
-        
-        const statusConta = contaPaciente.rows as [{IE_STATUS_ACERTO: number}]
+
+        const statusConta = contaPaciente.rows as [{ IE_STATUS_ACERTO: number }]
 
         return statusConta;
     }
@@ -57,24 +57,26 @@ export class TasyService {
             { outFormat: OracleDB.OUT_FORMAT_OBJECT }
 
         );
-
-        const prescricoes = resultSelect.rows as [{ NR_PRESCRICAO: number}] | undefined
+        if (!resultSelect || resultSelect == null){
+            return false
+        }
+        const prescricoes = resultSelect.rows as [{ NR_PRESCRICAO: number }] | undefined
 
         return prescricoes
     }
 
-    async nrSequenciaInterna(nrPrescricoes: [{NR_PRESCRICAO: number}]): Promise<number[]> {
-        const prescricoes = nrPrescricoes.map( presc => presc.NR_PRESCRICAO)
-        
-        let nrsSequenciainterna: number[]=  [] 
+    async nrSequenciaInterna(nrPrescricoes: [{ NR_PRESCRICAO: number }]): Promise<number[]> {
+        const prescricoes = nrPrescricoes.map(presc => presc.NR_PRESCRICAO)
 
-        for (const presc of prescricoes){
+        let nrsSequenciainterna: number[] = []
+
+        for (const presc of prescricoes) {
             const result = await this.connectionTasy.execute(
                 selectSequenciaInterna,
-                { nrPrescricao:presc },
+                { nrPrescricao: presc },
             );
 
-            for (const seqInt of result.rows as number[]){
+            for (const seqInt of result.rows as number[]) {
                 nrsSequenciainterna.push(seqInt)
 
             }
@@ -105,11 +107,11 @@ export class TasyService {
         return result;
     }
 
-    async consultaAtendimento(atendimentoId:number){
+    async consultaAtendimento(atendimentoId: number) {
 
         const resultCodPessoa = await this.connectionTasy.execute(
             selectCodigoPessoaFisica,
-            {atendimentoId},
+            { atendimentoId },
         );
 
         console.log(resultCodPessoa.rows[0])
@@ -118,19 +120,37 @@ export class TasyService {
 
         const resultDadosPaciente = await this.connectionTasy.execute(
             selectDadosPaciente,
-            {codigoPessoa: rowCosPessoa[0]},
-            { outFormat: OracleDB.OUT_FORMAT_OBJECT }           
+            { codigoPessoa: rowCosPessoa[0] },
+            { outFormat: OracleDB.OUT_FORMAT_OBJECT }
         )
 
-        const rowDadosPaciente = resultDadosPaciente.rows[0] 
+        const rowDadosPaciente = resultDadosPaciente.rows[0]
 
         console.log(rowDadosPaciente)
 
-        return rowDadosPaciente? rowDadosPaciente : undefined
+        return rowDadosPaciente ? rowDadosPaciente : undefined
+    }
+
+    async verificaMaterialMedico(idAtendiemento: number) {
+        const result = await this.connectionTasy.execute(
+            selectMaterialConta,
+            { idAtendiemento },
+        )
+
+        if (!result.rows || result.rows.length === 0) {
+            return false
+        }
+
+        const rows = result.rows as Array<[number | null]>;
+
+        // verifico se há algum material sem motico de cancelamento
+        const existeNull = rows.some(item => item[0] === null);
+
+        return existeNull
     }
 
     async closeConnection() {
-        try{
+        try {
             await this.connectionTasy.close();
             console.log('TASY connection closed')
         } catch (error) {

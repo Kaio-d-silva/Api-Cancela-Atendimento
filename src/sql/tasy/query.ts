@@ -107,6 +107,8 @@ export const selectCodigoUsuario = `SELECT CD_PESSOA_FISICA FROM USUARIO WHERE n
 
 export const selectContaPaciente = `SELECT IE_STATUS_ACERTO FROM CONTA_PACIENTE WHERE NR_ATENDIMENTO = :idAtendimento`
 
+export const selectMaterialConta = `SELECT CD_MOTIVO_EXC_CONTA FROM material_atend_paciente WHERE NR_ATENDIMENTO = :idAtendiemento`
+
 export const selectStatusAtendimento = `SELECT DT_CANCELAMENTO, NM_USUARIO_CANCELAMENTO FROM ATENDIMENTO_PACIENTE WHERE NR_ATENDIMENTO = :idAtendimento`
 
 export const selectNrPrescricao = `SELECT NR_PRESCRICAO FROM PRESCR_MEDICA WHERE NR_ATENDIMENTO = :idAtendimento`

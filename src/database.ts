@@ -6,6 +6,7 @@ oracledb.initOracleClient({ libDir: '/home/oracle/instantclient_19_28' });
 
 
 export async function getConnectionTasyHom() {
+  console.log("!!!!!!!!!!!!!!!!!!!!!!! Homologação !!!!!!!!!!!!!!!!!!!!!!!")
   return await oracledb.getConnection({
     user: ENV.USER_DB_TASY_HOMO,        
     password: ENV.PASSWORD_DB_TASY_HOMO,

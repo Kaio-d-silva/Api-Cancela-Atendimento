@@ -1,60 +1,59 @@
 import { HttpRequest, HttpResponse } from '../../interfaces';
 import { getConnectionTasyHom, getConnectionTasyProd } from '../../database';
 import { TasyService } from '../../services/tasy/tasy-service';
-import { error } from 'console';
 
 class ConsultaAtendimentoController {
-  async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
-    try {
+    async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
+        try {
+            
+            const tasyService = new TasyService(await getConnectionTasyProd());
 
-        let { atendimentoId } = httpRequest.params
+            try {
 
-        atendimentoId = Number(atendimentoId)
+                let { atendimentoId } = httpRequest.params
 
-        if (!atendimentoId) {
-            return {
-                statusCode: 400,
-                body: { error: "Atendimento ID não informado" },
-            };
-        }
-        if (typeof atendimentoId !== 'number' || atendimentoId <= 0) {
-            return {
-                statusCode: 400,
-                body: { error: "Atendimento ID inválido" },
-            };
-        }
+                atendimentoId = Number(atendimentoId)
 
-        const tasyService = new TasyService(await getConnectionTasyProd());
+                if (!atendimentoId) {
+                    return {
+                        statusCode: 400,
+                        body: { error: "Atendimento ID não informado" },
+                    };
+                }
+                if (typeof atendimentoId !== 'number' || atendimentoId <= 0) {
+                    return {
+                        statusCode: 400,
+                        body: { error: "Atendimento ID inválido" },
+                    };
+                }
 
-        const dadosAtendimento = await tasyService.consultaAtendimento(atendimentoId)
 
-        if(dadosAtendimento === undefined){
-            return{
-                statusCode: 400,
-                body: { error: "Sem sucesso ao buscar dados"}
+                const dadosAtendimento = await tasyService.consultaAtendimento(atendimentoId)
+
+                if (dadosAtendimento === undefined) {
+                    return {
+                        statusCode: 400,
+                        body: { error: "Sem sucesso ao buscar dados" }
+                    }
+                }
+
+                tasyService.closeConnection()
+
+                return {
+                    statusCode: 200,
+                    body: dadosAtendimento,
+                }
+            } catch (error) {
+                await tasyService.closeConnection()
+                return {
+                    statusCode: 500,
+                    body: { error: `Erro ao consultar atendimento ${error}` },
+                }
             }
-        }
-
-        tasyService.closeConnection()
-        // const atendimento = connection.execute(
-        //     `SELECT id, paciente FROM atendimentos WHERE id = :id`,
-        //     [atendimentoId],
-        //     { autoCommit: true }
-        // );
-
-        // await connection.close();
-        
-        return{
-            statusCode: 200,
-            body: dadosAtendimento,
-        }
-    } catch (error) {
-        return{
-            statusCode: 500,
-            body: { error: `Erro ao cancelar atendimento ${error}` },
+        } catch (error) {
+            console.log("Erro ao iniciar o banco de dados ")
         }
     }
-  }
 }
 
 export default ConsultaAtendimentoController;

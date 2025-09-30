@@ -124,7 +124,7 @@ class CancelaAtendimentoController {
 
 
 
-                const statusContaPaciente = await tasyService.contaPaciente(idAtendimento);
+                const statusContaPaciente = await tasyService.verificaContaPaciente(idAtendimento);
 
 
                 if (statusContaPaciente === false) {
@@ -145,6 +145,16 @@ class CancelaAtendimentoController {
                         }
                     };
 
+                }
+
+                const materiaisConta = await tasyService.verificaMaterialMedico(idAtendimento)
+
+                if (materiaisConta){
+                    await tasyService.closeConnection();
+                    return{
+                        statusCode: 400,
+                        body: { error: "Exclua o material da conta ou faça o cancelamento manual"}
+                    }
                 }
 
 
@@ -168,6 +178,17 @@ class CancelaAtendimentoController {
                         statusCode: 500,
                         body: { error: "Erro ao cancelar o atendimento" },
                     };
+                }
+
+                const statusAtendimentoPosCancelamento = await tasyService.AtendimentoCancelado(idAtendimento);
+
+                console.log(statusAtendimentoPosCancelamento)
+                if (!statusAtendimentoPosCancelamento){
+                    await tasyService.closeConnection
+                    return{
+                        statusCode: 400,
+                        body: { error: `Atendimento não cancelado, faça manualmente`}
+                    }
                 }
 
 

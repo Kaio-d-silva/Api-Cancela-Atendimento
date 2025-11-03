@@ -1,5 +1,5 @@
 import OracleDB from "oracledb";
-import { selectAcessionNumber } from "../../sql/pacs/pacs";
+import { selectAcessionNumber, selectMedicosPacs } from "../../sql/pacs/pacs";
 
 export class PacsService {
     connectionPacs: import("oracledb").Connection;
@@ -38,4 +38,10 @@ export class PacsService {
         return seqNoPacs
         
     }
+    async consultaMedicosPacs() {
+        const resultSelect = await this.connectionPacs.execute(selectMedicosPacs);
+        return resultSelect.rows;
+    }
+
+        
 }

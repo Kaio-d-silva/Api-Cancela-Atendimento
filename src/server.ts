@@ -6,7 +6,7 @@ const startServer = async (port: number) => {
   const app = (await import("./config/app")).default;
   
   app
-    .listen(port, () => {
+    .listen(port, '0.0.0.0', () => {
       console.log(`Servidor rodando na porta ${port}`);
       console.log(
         `Documentação da API disponível em http://localhost:${port}/api-docs`

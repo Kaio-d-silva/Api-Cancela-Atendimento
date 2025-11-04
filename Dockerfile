@@ -1,21 +1,35 @@
-FROM node:18
+# --- Etapa 1: build ---
+FROM node:18-slim AS build
 
-# Instala dependências do sistema necessárias para o Oracle
-RUN apt-get update && apt-get install -y libaio1 unzip && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    libaio1 \
+    libaio-dev \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-# Cria diretório da aplicação
 WORKDIR /api
 
-# Copia o código da aplicação
+COPY package*.json ./
+RUN npm ci --omit=dev
+
 COPY . .
 
-# Define o local do Oracle Instant Client dentro do container
+# --- Etapa 2: runtime (final) ---
+FROM node:18-slim
+
+RUN apt-get update && apt-get install -y \
+    libaio1 \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /api
+
+COPY --from=build /api ./
+
+# Define Oracle Client
 ENV LD_LIBRARY_PATH=/api/oracle/instantclient_19_28
 ENV PATH=$LD_LIBRARY_PATH:$PATH
 
-# Instala dependências Node
-RUN npm install
-
-EXPOSE 5002
+EXPOSE 3000
 
 CMD ["npm", "start"]

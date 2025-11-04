@@ -51,7 +51,10 @@ class ConsultaAtendimentoController {
                 }
             }
         } catch (error) {
-            console.log("Erro ao iniciar o banco de dados ")
+            return {
+            statusCode: 500,
+             body: { error: `Erro ao conectar no banco de dados: ${error}` },
+            }
         }
     }
 }

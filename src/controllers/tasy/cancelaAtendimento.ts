@@ -87,7 +87,6 @@ class CancelaAtendimentoController {
                 }
 
                 const prescricoes = await tasyService.numeroPrescricao(idAtendimento);
-                // console.log('nrPrescricao:', prescricoes);
 
 
 
@@ -104,13 +103,10 @@ class CancelaAtendimentoController {
 
                 const nrsSequenciaInterna = await tasyService.nrSequenciaInterna(prescricoes);
 
-                console.log('nrSequenciaInterna:', nrsSequenciaInterna);
-
                 // Logica de busco no PACS
                 
                 const resultPacsSelect = await pacsService.consultaSequenciaInterna(nrsSequenciaInterna)
 
-                console.log(resultPacsSelect)
                 if (resultPacsSelect && resultPacsSelect.length > 0) {
                     await pacsService.closeConnection()
                     await tasyService.closeConnection()
@@ -159,7 +155,6 @@ class CancelaAtendimentoController {
 
 
                 // Busca codigo do usuario 
-                console.log('nomeUsuario:', nomeUsuario);
                 const codUsuario = await tasyService.codigoUsuario(nomeUsuario);
 
                 if (!codUsuario) {
@@ -182,7 +177,6 @@ class CancelaAtendimentoController {
 
                 const statusAtendimentoPosCancelamento = await tasyService.AtendimentoCancelado(idAtendimento);
 
-                console.log(statusAtendimentoPosCancelamento)
                 if (!statusAtendimentoPosCancelamento){
                     await tasyService.closeConnection
                     return{
@@ -211,8 +205,11 @@ class CancelaAtendimentoController {
                     body: { error: `Erro ao cancelar atendimento ${error}` },
                 }
             }
-        } catch {
-            console.log("erro ao iniciar banco de dados")
+        } catch (error) {
+            return {
+                statusCode: 500,
+                body: { error: `Erro ao conectar no banco de dados: ${error}` },
+            }
         }
     }
 }

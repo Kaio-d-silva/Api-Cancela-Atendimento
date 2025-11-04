@@ -1,8 +1,8 @@
 import oracledb from 'oracledb';
 import { ENV } from './config/env';
 
-oracledb.initOracleClient({ libDir: '/home/Desenvolvimento/api/oracle/instantclient_19_28' });
-// oracledb.initOracleClient({ libDir: '/api/oracle/instantclient_19_28' });
+// oracledb.initOracleClient({ libDir: '/home/Desenvolvimento/api/oracle/instantclient_19_28' });
+oracledb.initOracleClient({ libDir: '/api/oracle/instantclient_19_28' });
 
 
 export async function getConnectionTasyHom() {

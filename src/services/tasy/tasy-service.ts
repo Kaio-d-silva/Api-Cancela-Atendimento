@@ -15,8 +15,6 @@ export class TasyService {
             { outFormat: OracleDB.OUT_FORMAT_OBJECT }
         )
 
-        console.log('statusAtendimento Rows:', statusAtendimento.rows);
-
         if (!statusAtendimento.rows || statusAtendimento.rows.length === 0) {
             return false;
         }
@@ -114,7 +112,6 @@ export class TasyService {
             { atendimentoId },
         );
 
-        console.log(resultCodPessoa.rows[0])
 
         const rowCosPessoa = resultCodPessoa.rows[0] as [number] | undefined
 
@@ -126,7 +123,6 @@ export class TasyService {
 
         const rowDadosPaciente = resultDadosPaciente.rows[0]
 
-        console.log(rowDadosPaciente)
 
         return rowDadosPaciente ? rowDadosPaciente : undefined
     }
